@@ -6,20 +6,20 @@
 		<link rel="stylesheet" type="text/css" href="bootstrap-3.2.0-dist/css/bootstrap.css"/>
 	</head>
 	<body>
-		<output-table></output-table>
+		<div class="container-fluid">
+			<output-table></output-table>
+		</div>
 		<script type="text/javascript" src="angular.min.js"></script>
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/ng-template" id="/output-table.html">
 			<div class="panel panel-default">
-			    <div class="panel-heading">Panel heading</div>
-			    <div class="panel-body">
-			        <p>...</p>
-			    </div>
-			    
 			    <!-- Table -->
-			    <table class="table">
-			        <tr ng-repeat="tuple in tableCtrl.tuples">
-			            <td>LOLOL</td>
+			    <table class="table table-striped table-responsive">
+			    	<tr>
+			    		<th ng-repeat="(key, value) in outputCtrl.tuples[0]" ng-click="outputCtrl.setSortKey(key)">{{outputCtrl.getKey($index)}} <span ng-class="outputCtrl.getHeaderClassForKey(key)"></span></th>
+			    	</tr>
+			        <tr ng-repeat="tuple in outputCtrl.tuples">
+			            <td ng-repeat="(key, value) in tuple">{{value}}</td>
 			        </tr>
 			    </table>
 			</div>
