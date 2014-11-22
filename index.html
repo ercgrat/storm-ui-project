@@ -1,17 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:ng="http://angular.js.org" ng-app>
-    <head>
-        <title>Identifying Improvements for Apache Storm</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <link rel="stylesheet" type="text/css" href="bootstrap-3.2.0-dist/css/bootstrap.css"/>
-    </head>
-    <body>
-		<div ng-controller="SampleController as sampleCtrl">
-			<p>
-				{{sampleCtrl.thing}}
-			</p>
-		</div>
-		<script src="angular.min.js"/>
-		<script src="storm.js"/>
+<html xmlns:ng="http://angular.js.org" ng-app="stormModule" ng-strict-di>
+	<head>
+		<title>Identifying Improvements for Apache Storm</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<link rel="stylesheet" type="text/css" href="bootstrap-3.2.0-dist/css/bootstrap.css"/>
+	</head>
+	<body>
+		<output-table></output-table>
+		<script type="text/javascript" src="angular.min.js"></script>
+		<script type="text/javascript" src="app.js"></script>
+		<script type="text/ng-template" id="/output-table.html">
+			<div class="panel panel-default">
+			    <div class="panel-heading">Panel heading</div>
+			    <div class="panel-body">
+			        <p>...</p>
+			    </div>
+			    
+			    <!-- Table -->
+			    <table class="table">
+			        <tr ng-repeat="tuple in tableCtrl.tuples">
+			            <td>LOLOL</td>
+			        </tr>
+			    </table>
+			</div>
+		</script>
 	</body>
 </html>
