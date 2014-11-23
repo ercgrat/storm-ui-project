@@ -1,33 +1,58 @@
 <!DOCTYPE html>
-<html xmlns:ng="http://angular.js.org" ng-app="app" ng-strict-di>
+<html xmlns:ng="http://angular.js.org" ng-strict-di>
 	<head>
 		<title>Identifying Improvements for Apache Storm</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<link rel="stylesheet" type="text/css" href="bootstrap-3.2.0-dist/css/bootstrap.css"/>
 	</head>
-	<body>
-		<div class="container-fluid">
-			<sorting-table></sorting-table>
+	<body ng-controller="PageController as pageCtrl">
+		<nav class="navbar navbar-default" role="navigation">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#" ng-click="pageCtrl.selectPage(0)">Identifying UI Improvements for Apache Storm</a>
+				</div>
+				
+				<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li ng-click="pageCtrl.selectPage(1)" ng-class="{active: pageCtrl.pageSelectedIs(1)}"><a href="#">Proposal</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="container-fluid" ng-show="pageCtrl.pageSelectedIs(0)">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<chart></chart>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<sorting-table></sorting-table>
+			</div>
 		</div>
+		<div class="container-fluid" ng-show="pageCtrl.pageSelectedIs(1)">
+			<iframe class="center-block" src="http://docs.google.com/gview?url=http://www.endpinned.com/Proposal.pdf&embedded=true" style="width:718px; height:700px;" frameborder="0"></iframe>
+		</div>
+		<script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 		<script type="text/javascript" src="angular.min.js"></script>
 		<script type="text/javascript" src="app.stormServiceModule.js"></script>
 		<script type="text/javascript" src="app.sortingTableModule.js"></script>
+		<script type="text/javascript" src="app.chartModule.js"></script>
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/ng-template" id="/sorting-table.html">
-			<div class="panel panel-default">
-			    <!-- Table -->
-			    <table class="table table-striped table-responsive">
-			    	<tr>
-			    		<th ng-repeat="(key, value) in outputCtrl.tuples[0]" ng-click="outputCtrl.setSortKey(key)">{{outputCtrl.getKey($index)}} <span ng-class="outputCtrl.getHeaderClassForKey(key)"></span></th>
-			    	</tr>
-			        <tr ng-repeat="tuple in outputCtrl.tuples">
-			            <td ng-repeat="(key, value) in tuple">{{value}}</td>
-			        </tr>
-			    </table>
-			</div>
+		    <!-- Table -->
+		    <table class="table table-striped table-responsive">
+		    	<tr>
+		    		<th ng-repeat="(key, value) in outputCtrl.tuples[0]" ng-click="outputCtrl.setSortKey(key)">{{outputCtrl.getKey($index)}} <span ng-class="outputCtrl.getHeaderClassForKey(key)"></span></th>
+		    	</tr>
+		        <tr ng-repeat="tuple in outputCtrl.tuples">
+		            <td ng-repeat="(key, value) in tuple">{{value}}</td>
+		        </tr>
+		    </table>
 		</script>
-		<script type="text/ng-template" id="/sorting-table.html">
-			<div id="chart_div"></div>
+		<script type="text/ng-template" id="/chart.html">
+			<div id="chart_div">
+			</div>
 		</script>
 	</body>
 </html>

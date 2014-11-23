@@ -1,50 +1,25 @@
 (function() {
-    var module = angular.module('app', ['app.sortingTableModule', 'app.stormServiceModule']);
+    var module = angular.module('app', ['app.sortingTableModule', 'app.stormServiceModule', 'app.chartModule']);
     
-    /*
+    module.controller('PageController', function(){
+        this.pageSelected = 0;
+        
+        this.pageSelectedIs = function(page) {
+            if(page === this.pageSelected){
+                return true;
+            }
+        }
+        this.selectPage = function(page) {
+            this.pageSelected = page;
+        }
+    })
     
-    module.directive('sortingTable', ['$sce', '$filter', function($sce, $filter) {
-        return {
-            restrict: 'E',
-            templateUrl: '/sorting-table.html',
-            controller: function() {
-                this.sortKey = Object.keys(tuples[0])[0]; // Gets first key of first tuple
-                this.sortDescending = false;
-                this.tuples = tuples;
-                
-                this.getKey = function(index){
-                    if(index === 0) {
-                        return "#";
-                    } else {
-                        return Object.keys(this.tuples[0])[index];
-                    }
-                }
-                
-                this.setSortKey = function(sortKey) {
-                    if(sortKey === this.sortKey) {
-                        this.sortDescending = !this.sortDescending;
-                    } else {
-                        this.sortKey = sortKey;
-                        this.sortDescending = false;
-                    }
-                    this.tuples = $filter('orderBy')(tuples,this.sortKey,this.sortDescending);
-                };
-                
-                this.getHeaderClassForKey = function(sortKey) {
-                    var headerClass = "glyphicon ";
-                    if(sortKey === this.sortKey) {
-                        if(this.sortDescending) {
-                            headerClass += "glyphicon-chevron-down";
-                        } else {
-                            headerClass += "glyphicon-chevron-up";
-                        }
-                    } else {
-                        headerClass += "glyphicon-minus";
-                    }
-                    return headerClass;
-                };
-            },
-            controllerAs: 'outputCtrl'
-        };
-    }]);*/
+    // Manually boostrap angular after loading the Google Chart API
+    google.setOnLoadCallback(function() {
+        angular.bootstrap(document, ['app']);
+    });
+    
+    // Load the Visualization API and the piechart package.
+    google.load('visualization', '1.0', {'packages':['corechart']});
+    
 })();
