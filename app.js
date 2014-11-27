@@ -1,14 +1,17 @@
 (function() {
     var module = angular.module('app', ['app.sortingTableModule', 'app.stormServiceModule', 'app.chartModule']);
     
-    module.controller('PageController', function(){
+    module.controller('PageController', ["$timeout", function($timeout){
         this.pageSelected = 0;
-        var eventSource = new EventSource("get_data.php");
-        eventSource.onmessage = function(msg) {
-            var newElement = document.createElement("li");
-            newElement.innerHTML = "count: " + msg.data;
-            $.getElementById("test_list").appendChild();
-        }
+	var stormConn = new WebSocket("ws://localhost:8080");
+
+	stormConn.onopen = function(msg) {
+		console.log("Successful connection via ws.");
+		$timeout(function(){ stormConn.send("Hello, world!"); }, 2000);
+	}
+	stormConn.onmessage = function(msg) {
+		console.log("Data: " + msg.data);
+	}
         
         this.pageSelectedIs = function(page) {
             if(page === this.pageSelected){
@@ -18,7 +21,7 @@
         this.selectPage = function(page) {
             this.pageSelected = page;
         }
-    })
+    }]);
     
     // Manually boostrap angular after loading the Google Chart API
     google.setOnLoadCallback(function() {
