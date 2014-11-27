@@ -3,6 +3,12 @@
     
     module.controller('PageController', function(){
         this.pageSelected = 0;
+        var eventSource = new EventSource("get_data.php");
+        eventSource.onmessage = function(msg) {
+            var newElement = document.createElement("li");
+            newElement.innerHTML = "count: " + msg.data;
+            $.getElementById("test_list").appendChild();
+        }
         
         this.pageSelectedIs = function(page) {
             if(page === this.pageSelected){
