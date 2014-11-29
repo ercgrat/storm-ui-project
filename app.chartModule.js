@@ -1,16 +1,18 @@
 (function(){
     var chartModule = angular.module('app.chartModule', ['app.stormServiceModule']);
-    
+     
     chartModule.factory('chartDataFactory', ['$filter', 'stormService', function($filter, stormService) {
-    
-        var getChartData = function() {
-            // Set up data table
-            var tuples = stormService.getTuples();
+     
+        var tuplesToDataTableArray = function(tuples) {
+             
+            if(tuples.length === 0) {
+                return [];
+            }
             var firstTuple = tuples[0];
-            
+             
             var columns = [];
             var dataTableArray = [];
-            
+             
             for(keyIndex in Object.keys(firstTuple)){
                 if(keyIndex != 0) {
                     var columnName = Object.keys(firstTuple)[keyIndex];
@@ -19,12 +21,12 @@
                 }
             }
             tuples = $filter('orderBy')(tuples, columns[0]["name"], false);
-            
+             
             dataTableArray.push([]);
             for(columnIndex in columns) {
                 dataTableArray[0].push(columns[columnIndex]["name"]);
             }
-            
+             
             for(tupleIndex in tuples) {
                 dataTableArray.push([]);
                 for(columnIndex in columns) {
@@ -33,61 +35,79 @@
                  dataTableArray[Number(Number(tupleIndex)+1)].push(currentTuple[currentKey]);
                 }
             }
-            
+             
             return dataTableArray;
         };
-        
-        return { getChartData: getChartData };
-        
+         
+        return { tuplesToDataTableArray: tuplesToDataTableArray };
+         
     }]);
-    
-    
+     
+    chartModule.controller('ChartController', ['$scope', '$timeout', 'stormService', function($scope, $timeout, stormService) {
+        $scope.sharedObject = {
+            dataset: {
+	        tuples: [],
+		errors: [],
+		dataTypes: []
+	    },
+	    chartTypes: [],
+            charts: {},
+            updateTuples: function(){}
+        }
+	this.chartTypes = ["Line", "Scatter", "Bar"];
+	this.selectedChartType = this.chartTypes[0];
+	this.selectChartType = function(chartType){
+	    this.selectedChartType = chartType;
+	}
+
+	this.loadNewTuples = function() {
+	    $scope.sharedObject.dataset = stormService.getRecentDataset();
+            $scope.sharedObject.updateCharts();
+        }
+	stormService.registerListener(this.loadNewTuples);
+    }]);
+
     chartModule.directive('chart', ['$timeout', 'chartDataFactory', function($timeout, chartDataFactory){
         return {
             restrict: 'E',
             templateUrl: '/chart.html',
-            compile: function(tElement, tAttrs){
-                
-                drawChart();
-                $(window).resize(drawChart);
-                
-                function drawChart(){
+            scope: {
+                chartType: '@chartType',
+                sharedObject: '='
+            },
+            link: function(scope, element, attrs){
+		scope.sharedObject.chartTypes.push(scope.chartType);
+		scope.sharedObject.updateCharts = updateCharts;
+		createChart();
+                $(window).resize(createChart);
+                 
+                function createChart(){
                     // Create data table
-                    this.data = new google.visualization.arrayToDataTable(chartDataFactory.getChartData());
-                    
-                    // Set up chart options
-                    this.options = {'title':'Storm Output Visualization'};
-                    
+                    dataArray = new google.visualization.arrayToDataTable(chartDataFactory.tuplesToDataTableArray(scope.sharedObject.dataset.tuples));
+		    // Set up chart options
+                    scope.options = {'title':'Storm Output Visualization'};
                     // Instantiate and draw our chart, passing in some options.
-                    this.chart = new google.visualization.LineChart($("#chart_div")[0]);
-                    chart.draw(this.data, options);
-                    
-                    if(!this.chartFirstDrawn) {
-                        $timeout(updateChart, 1000);
-                    }
-                    this.chartFirstDrawn = true;
+                    switch(scope.chartType) {
+                        case "Line":
+                            scope.sharedObject.charts[scope.chartType] = new google.visualization.LineChart($("#chart-Line")[0]);
+                            break;
+                        case "Bar":
+                            scope.sharedObject.charts[scope.chartType] = new google.visualization.BarChart($("#chart-Bar")[0]);
+                            break;
+                    	case "Scatter":
+			    scope.sharedObject.charts[scope.chartType] = new google.visualization.ScatterChart($("#chart-Scatter")[0]);
+		    }
+                    scope.sharedObject.charts[scope.chartType].draw(dataArray, scope.options);
                 }
-                
-                function updateChart(){
-                    var row = [];
-                    for(var col = 0; col < this.data.getNumberOfColumns(); col++) {
-                        if(col == 0) {
-                            row.push(this.data.getValue(this.data.getNumberOfRows()-1,col) + 1);
-                        } else {
-                            if(Math.random() > 0.5) {
-                                row.push(this.data.getValue(this.data.getNumberOfRows()-1,col) + Math.random()*2);
-                            } else {
-                                row.push(this.data.getValue(this.data.getNumberOfRows()-1,col) - Math.random()*2);
-                            }
-                        }
-                        
+                 
+                function updateCharts(){
+		    for(typeIndex in scope.sharedObject.chartTypes) {
+                        var chartType = scope.sharedObject.chartTypes[typeIndex];
+		        var dataArray = new google.visualization.arrayToDataTable(chartDataFactory.tuplesToDataTableArray(scope.sharedObject.dataset.tuples));
+			scope.sharedObject.charts[chartType].draw(dataArray, scope.options);
                     }
-                    this.data.removeRow(0);
-                    this.data.addRow(row);
-                    chart.draw(this.data, options);
-                    $timeout(updateChart, 1000);
                 }
             }
-        }
+        };
     }]);
 })();

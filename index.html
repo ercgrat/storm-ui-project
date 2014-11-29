@@ -4,6 +4,7 @@
 		<title>Identifying Improvements for Apache Storm</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<link rel="stylesheet" type="text/css" href="bootstrap-3.2.0-dist/css/bootstrap.css"/>
+		<link rel="stylesheet" type="text/css" href="index.css"/>
 	</head>
 	<body ng-controller="PageController as pageCtrl">
 		<nav class="navbar navbar-default" role="navigation">
@@ -19,17 +20,25 @@
 				</div>
 			</div>
 		</nav>
-		<ul id="test_list">
-		</ul>
 		<div class="container-fluid" ng-show="pageCtrl.pageSelectedIs(0)">
-			<div class="panel panel-default">
+			<div class="panel panel-default" ng-controller="ChartController as chartCtrl">
+				<div class="panel-heading">
+					<div class="btn-toolbar" role="toolbar">
+					<div class="btn-group" role="group">
+						<button class="btn btn-default" type="button" ng-repeat="chartType in chartCtrl.chartTypes" ng-click="chartCtrl.selectChartType(chartType)">{{chartType}}</button>
+					</div>
+					<div class="btn-group" role="group">
+						<button class="btn btn-default" type="button">Error Plot</button>
+					</div>
+					</div>
+				</div>
 				<div class="panel-body">
-					<chart></chart>
+					<chart data-chart-type="Line" id="chart-Line" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Line'"></chart>
+					<chart data-chart-type="Scatter" id="chart-Scatter" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Scatter'"></chart>
+					<chart data-chart-type="Bar" id="chart-Bar" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Bar'"></chart>
 				</div>
 			</div>
-			<div class="panel panel-default">
-				<sorting-table></sorting-table>
-			</div>
+			<sorting-table></sorting-table>
 		</div>
 		<div class="container-fluid" ng-show="pageCtrl.pageSelectedIs(1)">
 			<iframe class="center-block" src="http://docs.google.com/gview?url=http://www.endpinned.com/Proposal.pdf&embedded=true" style="width:718px; height:700px;" frameborder="0"></iframe>
@@ -42,19 +51,30 @@
 		<script type="text/javascript" src="app.chartModule.js"></script>
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/ng-template" id="/sorting-table.html">
-		    <!-- Table -->
-		    <table class="table table-striped table-responsive">
-		    	<tr>
-		    		<th ng-repeat="(key, value) in outputCtrl.tuples[0]" ng-click="outputCtrl.setSortKey(key)">{{outputCtrl.getKey($index)}} <span ng-class="outputCtrl.getHeaderClassForKey(key)"></span></th>
-		    	</tr>
-		        <tr ng-repeat="tuple in outputCtrl.tuples">
-		            <td ng-repeat="(key, value) in tuple">{{value}}</td>
-		        </tr>
-		    </table>
+		    <div class="panel panel-default">
+			<div class="panel-heading">
+			    <div class="btn-group" role="group">
+			        <button type="button" class="btn btn-default" ng-click="outputCtrl.loadData()" ng-class="{ moreinfo: numNewTuples > 0, lessinfo: numNewTuples < 0 }">Load current data: ({{dataChangeSign}}{{numNewTuples}})</button>
+			    </div>
+			</div>
+			<div class="panel-body">
+		    	    <!-- Table -->
+		    	    <table class="table table-striped table-responsive">
+		    	        <tr>
+		    		    <th ng-repeat="(key, value) in outputCtrl.tuples[0]" ng-click="outputCtrl.setSortKey(key)">{{outputCtrl.getKey($index)}} <span ng-class="outputCtrl.getHeaderClassForKey(key)"></span></th>
+		    	        </tr>
+		                <tr ng-repeat="tuple in outputCtrl.tuples">
+		                    <td ng-repeat="(key, value) in tuple">{{value}}</td>
+		                </tr>
+		            </table>
+		        </div>
+		    </div>
+		</script>
+		<script type="text/ng-template" id="/chart-viewer.html">
+			<div class="chart_viewer" ng-transclude>
+			</div>
 		</script>
 		<script type="text/ng-template" id="/chart.html">
-			<div id="chart_div">
-			</div>
 		</script>
 	</body>
 </html>

@@ -1,36 +1,48 @@
 (function(){
-    angular.module('app.stormServiceModule', []).factory('stormService', function(){
-        var getTuples = function(){
+    var stormServiceModule = angular.module('app.stormServiceModule', []);
+
+    stormServiceModule.service('stormService', ['$timeout', function($timeout){
+
+	var hasNewData = false;
+	var dataset = {
+	    tuples: [],
+	    errors: [],
+	    dataTypes: []
+	}
+	var recentData = JSON.parse(JSON.stringify(dataset));
+	var listeners = [];
+
+	var stormConn = new WebSocket("ws://localhost:8080");
+        stormConn.onopen = function(msg) {
+		$timeout(requestData, 1000);
+        }
+	stormConn.onmessage = function(msg) {
+		parseTuples(msg.data);
+		$timeout(requestData, 1000);
+	}
+
+	var requestData = function() {
+		stormConn.send("ping");
+	}
+
+	this.numNewDataPoints = function() {
+	    return recentData.tuples.length - dataset.tuples.length;
+	}
+	this.getDataset = function() {
+	    return dataset;
+	}
+	this.getRecentDataset = function() {
+	    return recentData;	
+	}
+	this.registerListener = function(callback){
+	    listeners.push(callback);
+	}
+
+        var parseTuples = function(jsonResponse){
             var indexKey = "___ANGULARJS_STORM_MODULE_INDEX_";
-            var inTuples = [
-                {
-                    time: 3.20,
-                    y1: 2,
-                    y2: 7
-                },
-                {
-                    time: 2.98,
-                    y1: 3,
-                    y2: 8
-                },
-                {
-                    time: 3.10,
-                    y1: 2,
-                    y2: 8
-                },
-                {
-                    time: 2.55,
-                    y1: 6,
-                    y2: 3
-                },
-                {
-                    time: 4.01,
-                    y1: 10,
-                    y2: -1
-                }
-            ];
-            
-            function indexTuples(inTuples, indexKey) {
+            var inDataset = JSON.parse(jsonResponse);
+            var inTuples = inDataset.data;
+	    function indexTuples(inTuples, indexKey) {
                 var tuples = [];
                 var tupleIndex = 0;
                 for(tupleIndex in inTuples){
@@ -44,10 +56,15 @@
                 }
                 return tuples;
             }
-            
-            return indexTuples(inTuples, indexKey);
+             
+            recentData.tuples = indexTuples(inTuples, indexKey);
+	    for(var i = 0; i < listeners.length; i++) {
+	        listeners[i]();
+	    }
         };
-        
-        return { getTuples: getTuples };
-    });
+
+	this.loadRecentTuples = function(){
+	    dataset.tuples = recentData.tuples.slice(0);
+	};
+    }]);
 })();

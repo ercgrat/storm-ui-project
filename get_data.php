@@ -13,7 +13,7 @@ use Ratchet\WebSocket\WsServer;
 require '/home/eric/Ratchet/vendor/autoload.php';
 
 // Create new Predis client
-$client = new Predis\Client();
+$redis_client = new Predis\Client();
 
 // Define communication class
 class StormConnection implements MessageComponentInterface {
@@ -25,11 +25,21 @@ class StormConnection implements MessageComponentInterface {
 
 	public function onOpen(ConnectionInterface $conn) {
 		$this->clients->attach($conn);
-		echo "New connection!";		
+		echo "New connection!\n";		
 	}
 
 	public function onMessage(ConnectionInterface $from, $msg) {
-		$from->send("HEY~!");		
+		global $redis_client;
+		$json_response = '{ "data": [';
+		$tuples = $redis_client->lrange("data", 0, -1);
+		for($i = 0; $i < count($tuples); $i++) {
+			$json_response .= $tuples[$i];
+			if($i < count($tuples)-1) {
+				$json_response .= ",";
+			}
+		}
+		$json_response .= '] }';
+		$from->send($json_response);		
 	}
 	
 	public function onClose(ConnectionInterface $conn) {

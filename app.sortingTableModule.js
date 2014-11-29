@@ -3,11 +3,34 @@
         return {
             restrict: 'E',
             templateUrl: '/sorting-table.html',
-            controller: function() {
-                this.tuples = stormService.getTuples();
-                this.sortKey = Object.keys(this.tuples[0])[0]; // Gets first key of first tuple
-                this.sortDescending = false;
-                
+            controller: function($scope) {
+                this.dataset = stormService.getDataset();
+		this.tuples = this.dataset.tuples;
+		if(this.tuples.length !== 0) {
+                    this.sortKey = Object.keys(this.tuples[0])[0]; // Gets first key of first tuple
+                } else {
+		    this.sortKey = "";
+		}
+		this.sortDescending = false;
+
+		this.loadData = function() {
+		    stormService.loadRecentTuples();
+		    this.dataset = stormService.getDataset();
+		    this.tuples = this.dataset.tuples;
+		    $scope.numNewTuples = 0;
+		    $scope.dataChangeSign = "+";
+		}               
+		this.dataListener = function() {
+		    $scope.numNewTuples = stormService.numNewDataPoints();
+		    if($scope.numNewTuples >= 0) {
+		    	$scope.dataChangeSign = "+";
+		    } else {
+		    	$scope.dataChangeSign = "-";
+		    }
+		}
+		this.dataListener();
+		stormService.registerListener(this.dataListener);
+ 
                 this.getKey = function(index){
                     if(index === 0) {
                         return "#";
