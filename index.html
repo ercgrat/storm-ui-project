@@ -61,10 +61,10 @@
 		    	    <!-- Table -->
 		    	    <table class="table table-striped table-responsive">
 		    	        <tr>
-		    		    <th ng-repeat="(key, value) in outputCtrl.tuples[0]" ng-click="outputCtrl.setSortKey(key)">{{outputCtrl.getKey($index)}} <span ng-class="outputCtrl.getHeaderClassForKey(key)"></span></th>
+		    		    <th ng-repeat="(key, value) in outputCtrl.tuples[0]" ng-click="outputCtrl.setSortKey(outputCtrl.getKey($index))">{{outputCtrl.getLabel($index)}} <span ng-class="outputCtrl.getHeaderClassForKey(outputCtrl.getKey($index))"></span></th>
 		    	        </tr>
 		                <tr ng-repeat="tuple in outputCtrl.tuples">
-		                    <td ng-repeat="(key, value) in tuple">{{value}}</td>
+		                    <td ng-repeat="(key, value) in tuple">{{tuple[outputCtrl.getKey($index)]}}</td>
 		                </tr>
 		            </table>
 		        </div>

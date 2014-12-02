@@ -4,11 +4,13 @@
     stormServiceModule.service('stormService', ['$timeout', function($timeout){
 
 	var hasNewData = false;
+	var indexKey = "___ANGULARJS_STORM_MODULE_INDEX_";
 	var dataset = {
 	    tuples: [],
 	    errors: [],
 	    dataTypes: []
 	}
+	// Clone dataset
 	var recentData = JSON.parse(JSON.stringify(dataset));
 	var listeners = [];
 
@@ -37,24 +39,25 @@
 	this.registerListener = function(callback){
 	    listeners.push(callback);
 	}
+	this.getIndexKey = function() {
+	    return indexKey;
+	}
 
         var parseTuples = function(jsonResponse){
-            var indexKey = "___ANGULARJS_STORM_MODULE_INDEX_";
             var inDataset = JSON.parse(jsonResponse);
             var inTuples = inDataset.data;
 	    function indexTuples(inTuples, indexKey) {
                 var tuples = [];
-                var tupleIndex = 0;
                 for(tupleIndex in inTuples){
                     tuples.push({});
-                    tuples[tupleIndex][indexKey] = tupleIndex;
+                    tuples[tupleIndex][indexKey] = Number(tupleIndex);
                     for(keyIndex in Object.keys(inTuples[tupleIndex])){
                         var key = Object.keys(inTuples[tupleIndex])[keyIndex];
                         tuples[tupleIndex][key] = inTuples[tupleIndex][key];
                     }
                     tupleIndex++;
                 }
-                return tuples;
+                return tuples.reverse();
             }
              
             recentData.tuples = indexTuples(inTuples, indexKey);

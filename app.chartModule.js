@@ -3,43 +3,52 @@
      
     chartModule.factory('chartDataFactory', ['$filter', 'stormService', function($filter, stormService) {
      
-        var tuplesToDataTableArray = function(tuples) {
-             
+        var tuplesToDataTable = function(tuples, chartType) {
             if(tuples.length === 0) {
                 return [];
             }
-            var firstTuple = tuples[0];
-             
-            var columns = [];
-            var dataTableArray = [];
-             
+	    var firstTuple = tuples[0];
+            var dataTable = new google.visualization.DataTable(); 
+            var dataArray = [];
+	    var dataStringDict = {};
+ 
             for(keyIndex in Object.keys(firstTuple)){
                 if(keyIndex != 0) {
                     var columnName = Object.keys(firstTuple)[keyIndex];
-                    var columnType = typeof firstTuple[columnName];
-                    columns.push({name: columnName, type: columnType});
+                    dataTable.addColumn("number", columnName);
+		    if(typeof firstTuple[columnName] === "string") {
+		        if(chartType === "Scatter") {
+			    dataTable.addColumn({type:"string",role:"tooltip"});
+			} else {
+			    dataTable.addColumn({type:"string",role:"annotation"});
+			}
+			dataStringDict[columnName] = {};
+		    }
                 }
-            }
-            tuples = $filter('orderBy')(tuples, columns[0]["name"], false);
-             
-            dataTableArray.push([]);
-            for(columnIndex in columns) {
-                dataTableArray[0].push(columns[columnIndex]["name"]);
             }
              
             for(tupleIndex in tuples) {
-                dataTableArray.push([]);
-                for(columnIndex in columns) {
-                 var currentTuple = tuples[tupleIndex];
-                 var currentKey = columns[columnIndex]["name"];
-                 dataTableArray[Number(Number(tupleIndex)+1)].push(currentTuple[currentKey]);
-                }
+                dataArray.push([]);
+		var currentTuple = tuples[tupleIndex];
+                for(keyIndex in Object.keys(firstTuple)) {
+                    var currentKey = Object.keys(firstTuple)[keyIndex];
+		    var value = currentTuple[currentKey];
+		    if(keyIndex != 0) {
+		        if(typeof(currentTuple[currentKey]) === "string") {
+		            if(typeof dataStringDict[currentKey][value] === 'undefined') {
+				dataStringDict[currentKey][value] = Object.keys(dataStringDict[currentKey]).length + 1;
+			    }
+		            dataArray[Number(tupleIndex)].push(dataStringDict[currentKey][value]);
+		        }
+		        dataArray[Number(tupleIndex)].push(value);
+                    }
+		}
             }
-             
-            return dataTableArray;
+	    dataTable.addRows(dataArray);
+            return dataTable;
         };
          
-        return { tuplesToDataTableArray: tuplesToDataTableArray };
+        return { tuplesToDataTable: tuplesToDataTable };
          
     }]);
      
@@ -82,10 +91,11 @@
                 $(window).resize(createChart);
                  
                 function createChart(){
+		console.log("redrawing chart");
                     // Create data table
-                    dataArray = new google.visualization.arrayToDataTable(chartDataFactory.tuplesToDataTableArray(scope.sharedObject.dataset.tuples));
+                    dataTable = chartDataFactory.tuplesToDataTable(scope.sharedObject.dataset.tuples, scope.chartType);
 		    // Set up chart options
-                    scope.options = {'title':'Storm Output Visualization'};
+                    scope.options = {'title':'Storm Output Visualization', 'bars':'vertical'};
                     // Instantiate and draw our chart, passing in some options.
                     switch(scope.chartType) {
                         case "Line":
@@ -97,14 +107,14 @@
                     	case "Scatter":
 			    scope.sharedObject.charts[scope.chartType] = new google.visualization.ScatterChart($("#chart-Scatter")[0]);
 		    }
-                    scope.sharedObject.charts[scope.chartType].draw(dataArray, scope.options);
+                    scope.sharedObject.charts[scope.chartType].draw(dataTable, scope.options);
                 }
                  
                 function updateCharts(){
 		    for(typeIndex in scope.sharedObject.chartTypes) {
                         var chartType = scope.sharedObject.chartTypes[typeIndex];
-		        var dataArray = new google.visualization.arrayToDataTable(chartDataFactory.tuplesToDataTableArray(scope.sharedObject.dataset.tuples));
-			scope.sharedObject.charts[chartType].draw(dataArray, scope.options);
+		        var dataTable = chartDataFactory.tuplesToDataTable(scope.sharedObject.dataset.tuples, chartType);
+			scope.sharedObject.charts[chartType].draw(dataTable, scope.options);
                     }
                 }
             }

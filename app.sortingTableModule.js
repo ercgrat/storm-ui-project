@@ -6,6 +6,7 @@
             controller: function($scope) {
                 this.dataset = stormService.getDataset();
 		this.tuples = this.dataset.tuples;
+		this.indexKey = stormService.getIndexKey();
 		if(this.tuples.length !== 0) {
                     this.sortKey = Object.keys(this.tuples[0])[0]; // Gets first key of first tuple
                 } else {
@@ -17,6 +18,7 @@
 		    stormService.loadRecentTuples();
 		    this.dataset = stormService.getDataset();
 		    this.tuples = this.dataset.tuples;
+		    console.log(this.tuples);
 		    $scope.numNewTuples = 0;
 		    $scope.dataChangeSign = "+";
 		}               
@@ -31,9 +33,16 @@
 		this.dataListener();
 		stormService.registerListener(this.dataListener);
  
+		this.getLabel = function(index){
+		    if(index === 0) {
+			return "#";
+		    } else {
+		        return Object.keys(this.tuples[0])[index];
+		    }
+		}
                 this.getKey = function(index){
                     if(index === 0) {
-                        return "#";
+                        return this.indexKey;
                     } else {
                         return Object.keys(this.tuples[0])[index];
                     }
