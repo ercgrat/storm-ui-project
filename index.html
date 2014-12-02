@@ -33,9 +33,9 @@
 					</div>
 				</div>
 				<div class="panel-body">
-					<chart data-chart-type="Line" id="chart-Line" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Line'"></chart>
-					<chart data-chart-type="Scatter" id="chart-Scatter" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Scatter'"></chart>
-					<chart data-chart-type="Bar" id="chart-Bar" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Bar'"></chart>
+					<div chart data-chart-type="Line" id="chart-Line" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Line'"></div>
+					<div chart data-chart-type="Scatter" id="chart-Scatter" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Scatter'"></div>
+					<div chart data-chart-type="Bar" id="chart-Bar" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Bar'"></div>
 				</div>
 			</div>
 			<sorting-table></sorting-table>
@@ -69,10 +69,6 @@
 		            </table>
 		        </div>
 		    </div>
-		</script>
-		<script type="text/ng-template" id="/chart-viewer.html">
-			<div class="chart_viewer" ng-transclude>
-			</div>
 		</script>
 		<script type="text/ng-template" id="/chart.html">
 		</script>

@@ -45,7 +45,7 @@
 
         var parseTuples = function(jsonResponse){
             var inDataset = JSON.parse(jsonResponse);
-            var inTuples = inDataset.data;
+            var inTuples = inDataset.data.reverse();
 	    function indexTuples(inTuples, indexKey) {
                 var tuples = [];
                 for(tupleIndex in inTuples){
@@ -57,7 +57,7 @@
                     }
                     tupleIndex++;
                 }
-                return tuples.reverse();
+                return tuples;
             }
              
             recentData.tuples = indexTuples(inTuples, indexKey);

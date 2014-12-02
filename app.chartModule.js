@@ -78,7 +78,7 @@
 
     chartModule.directive('chart', ['$timeout', 'chartDataFactory', function($timeout, chartDataFactory){
         return {
-            restrict: 'E',
+            restrict: 'A',
             templateUrl: '/chart.html',
             scope: {
                 chartType: '@chartType',
@@ -95,7 +95,7 @@
                     // Create data table
                     dataTable = chartDataFactory.tuplesToDataTable(scope.sharedObject.dataset.tuples, scope.chartType);
 		    // Set up chart options
-                    scope.options = {'title':'Storm Output Visualization', 'bars':'vertical'};
+                    scope.options = {'title':'Storm Output Visualization'};
                     // Instantiate and draw our chart, passing in some options.
                     switch(scope.chartType) {
                         case "Line":

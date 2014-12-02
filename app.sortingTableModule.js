@@ -12,13 +12,13 @@
                 } else {
 		    this.sortKey = "";
 		}
-		this.sortDescending = false;
+		this.sortDescending = true;
 
 		this.loadData = function() {
 		    stormService.loadRecentTuples();
 		    this.dataset = stormService.getDataset();
 		    this.tuples = this.dataset.tuples;
-		    console.log(this.tuples);
+		    this.sortDescending = true;
 		    $scope.numNewTuples = 0;
 		    $scope.dataChangeSign = "+";
 		}               
