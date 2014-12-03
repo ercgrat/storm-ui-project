@@ -28,7 +28,7 @@
 						<button class="btn btn-default" type="button" ng-repeat="chartType in chartCtrl.chartTypes" ng-click="chartCtrl.selectChartType(chartType)">{{chartType}}</button>
 					</div>
 					<div class="btn-group" role="group">
-						<button class="btn btn-default" type="button">Error Plot</button>
+						<button class="btn btn-default" type="button" ng-click="chartCtrl.selectChartType('Error')">Exceptions</button>
 					</div>
 					</div>
 				</div>
@@ -36,6 +36,7 @@
 					<div chart data-chart-type="Line" id="chart-Line" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Line'"></div>
 					<div chart data-chart-type="Scatter" id="chart-Scatter" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Scatter'"></div>
 					<div chart data-chart-type="Bar" id="chart-Bar" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Bar'"></div>
+					<div chart data-chart-type="Error" id="chart-Error" data-shared-object="sharedObject" ng-show="chartCtrl.selectedChartType === 'Error'"></div>
 				</div>
 			</div>
 			<sorting-table></sorting-table>

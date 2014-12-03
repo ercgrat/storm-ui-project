@@ -38,6 +38,14 @@ class StormConnection implements MessageComponentInterface {
 				$json_response .= ",";
 			}
 		}
+		$json_response .= '], "exceptions": [';
+		$exceptions = $redis_client->lrange("exceptions", 0, -1);
+		for($i = 0; $i < count($exceptions); $i++) {
+			$json_response .= $exceptions[$i];
+			if($i < count($exceptions)-1) {
+				$json_response .= ",";
+			}
+		}
 		$json_response .= '] }';
 		$from->send($json_response);		
 	}

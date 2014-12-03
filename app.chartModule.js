@@ -3,10 +3,14 @@
      
     chartModule.factory('chartDataFactory', ['$filter', 'stormService', function($filter, stormService) {
      
-        var tuplesToDataTable = function(tuples, chartType) {
-            if(tuples.length === 0) {
+        var tuplesToDataTable = function(dataset, chartType) {
+            var tuples = dataset.tuples;
+	    if(tuples.length === 0) {
                 return [];
             }
+	    if(chartType === "Error") {
+	    	return getErrorDataTable(dataset);
+	    }
 	    var firstTuple = tuples[0];
             var dataTable = new google.visualization.DataTable(); 
             var dataArray = [];
@@ -47,6 +51,52 @@
 	    dataTable.addRows(dataArray);
             return dataTable;
         };
+
+	var getErrorDataTable = function(dataset){
+	    var errors = dataset.exceptions.reverse();
+	    var dataTable = new google.visualization.DataTable();
+	    
+
+	    var classNames = {};
+	    var exceptionDict = {};
+	    var classCount = 0;
+	    var exceptionCount = 0;
+	    for(var i = 0; i < errors.length; i++){
+		if(typeof classNames[errors[i]["class-name"]] === 'undefined') {
+		    classCount++;
+		    classNames[errors[i]["class-name"]] = classCount;
+		}
+		if(typeof exceptionDict[errors[i]["type"]] === 'undefined') {
+		    exceptionCount++;
+		    exceptionDict[errors[i]["type"]] = exceptionCount;
+		}
+	    }	
+
+	    dataTable.addColumn("number", "index");
+	    for(classNameIndex in Object.keys(classNames)) {
+		dataTable.addColumn("number", Object.keys(classNames)[classNameIndex]);
+	    	dataTable.addColumn({type:"string", role:"tooltip"});
+	    }
+
+	    var dataArray = [];
+	    for(errorIndex in errors) {
+		var error = errors[errorIndex];
+		dataArray.push([]);
+		dataArray[errorIndex].push(Number(errorIndex) + 1);
+		for(classIndex in Object.keys(classNames)) {
+		    var className = Object.keys(classNames)[classIndex];
+		    if(error["class-name"] === className) {
+			dataArray[errorIndex].push(exceptionDict[error["type"]]);
+		        dataArray[errorIndex].push("Type: " + error["type"] + ", Line: " + error["line-in-file"] + ", Task ID: " + error["task_id"]);
+		    } else {
+			dataArray[errorIndex].push(null);
+			dataArray[errorIndex].push(null);
+		    }
+		}
+	    }
+	    dataTable.addRows(dataArray);
+	    return dataTable;	    
+	};
          
         return { tuplesToDataTable: tuplesToDataTable };
          
@@ -91,11 +141,9 @@
                 $(window).resize(createChart);
                  
                 function createChart(){
-		console.log("redrawing chart");
                     // Create data table
-                    dataTable = chartDataFactory.tuplesToDataTable(scope.sharedObject.dataset.tuples, scope.chartType);
-		    // Set up chart options
-                    scope.options = {'title':'Storm Output Visualization'};
+                    dataTable = chartDataFactory.tuplesToDataTable(scope.sharedObject.dataset, scope.chartType);
+		    
                     // Instantiate and draw our chart, passing in some options.
                     switch(scope.chartType) {
                         case "Line":
@@ -106,15 +154,32 @@
                             break;
                     	case "Scatter":
 			    scope.sharedObject.charts[scope.chartType] = new google.visualization.ScatterChart($("#chart-Scatter")[0]);
+			    break;
+		    	case "Error":
+			    scope.sharedObject.charts[scope.chartType] = new google.visualization.ScatterChart($("#chart-Error")[0]);
 		    }
-                    scope.sharedObject.charts[scope.chartType].draw(dataTable, scope.options);
+                    scope.sharedObject.charts[scope.chartType].draw(dataTable, getChartOptions(scope.chartType));
                 }
+	
+		function getChartOptions(chartType) {
+		    var options = {"title":"Storm Output Visualization","hAxis":{"title":""}, "vAxis":{"title":""}};
+		    if(scope.sharedObject.dataset.tuples[0]) {
+		        options.hAxis.title = Object.keys(scope.sharedObject.dataset.tuples[0])[1];
+			options.vAxis.title = Object.keys(scope.sharedObject.dataset.tuples[0])[2];
+		    }
+		    if(chartType === 'Error'){
+			options.title = "Storm Exception Visualization";
+			options.hAxis.title = "Index";
+			options.vAxis.title = "Type";
+		    }
+		    return options;
+		}
                  
                 function updateCharts(){
 		    for(typeIndex in scope.sharedObject.chartTypes) {
                         var chartType = scope.sharedObject.chartTypes[typeIndex];
-		        var dataTable = chartDataFactory.tuplesToDataTable(scope.sharedObject.dataset.tuples, chartType);
-			scope.sharedObject.charts[chartType].draw(dataTable, scope.options);
+		        var dataTable = chartDataFactory.tuplesToDataTable(scope.sharedObject.dataset, chartType);
+			scope.sharedObject.charts[chartType].draw(dataTable, getChartOptions(chartType));
                     }
                 }
             }

@@ -7,8 +7,7 @@
 	var indexKey = "___ANGULARJS_STORM_MODULE_INDEX_";
 	var dataset = {
 	    tuples: [],
-	    errors: [],
-	    dataTypes: []
+	    exceptions: []
 	}
 	// Clone dataset
 	var recentData = JSON.parse(JSON.stringify(dataset));
@@ -59,7 +58,7 @@
                 }
                 return tuples;
             }
-             
+	    recentData.exceptions = inDataset.exceptions;
             recentData.tuples = indexTuples(inTuples, indexKey);
 	    for(var i = 0; i < listeners.length; i++) {
 	        listeners[i]();
@@ -68,6 +67,7 @@
 
 	this.loadRecentTuples = function(){
 	    dataset.tuples = recentData.tuples.slice(0);
+	    dataset.exceptions = recentData.exceptions.slice(0);
 	};
     }]);
 })();
