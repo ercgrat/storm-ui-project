@@ -4,3 +4,6 @@
 .lessinfo {
 	color:red;
 }
+div[chart], .chart-container {
+	height:400px;
+}

@@ -43,6 +43,7 @@
 	}
 
         var parseTuples = function(jsonResponse){
+	    console.log(jsonResponse);
             var inDataset = JSON.parse(jsonResponse);
             var inTuples = inDataset.data.reverse();
 	    function indexTuples(inTuples, indexKey) {

@@ -57,15 +57,9 @@
 	    var dataTable = new google.visualization.DataTable();
 	    
 
-	    var classNames = {};
 	    var exceptionDict = {};
-	    var classCount = 0;
 	    var exceptionCount = 0;
 	    for(var i = 0; i < errors.length; i++){
-		if(typeof classNames[errors[i]["class-name"]] === 'undefined') {
-		    classCount++;
-		    classNames[errors[i]["class-name"]] = classCount;
-		}
 		if(typeof exceptionDict[errors[i]["type"]] === 'undefined') {
 		    exceptionCount++;
 		    exceptionDict[errors[i]["type"]] = exceptionCount;
@@ -73,8 +67,8 @@
 	    }	
 
 	    dataTable.addColumn("number", "index");
-	    for(classNameIndex in Object.keys(classNames)) {
-		dataTable.addColumn("number", Object.keys(classNames)[classNameIndex]);
+	    for(exceptionIndex in Object.keys(exceptionDict)) {
+		dataTable.addColumn("number", Object.keys(exceptionDict)[exceptionIndex]);
 	    	dataTable.addColumn({type:"string", role:"tooltip"});
 	    }
 
@@ -83,10 +77,10 @@
 		var error = errors[errorIndex];
 		dataArray.push([]);
 		dataArray[errorIndex].push(Number(errorIndex) + 1);
-		for(classIndex in Object.keys(classNames)) {
-		    var className = Object.keys(classNames)[classIndex];
-		    if(error["class-name"] === className) {
-			dataArray[errorIndex].push(exceptionDict[error["type"]]);
+		for(exceptionIndex in Object.keys(exceptionDict)) {
+		    var exception = Object.keys(exceptionDict)[exceptionIndex];
+		    if(error["type"] === exception) {
+			dataArray[errorIndex].push(Number(error["task_id"]));
 		        dataArray[errorIndex].push("Type: " + error["type"] + ", Line: " + error["line-in-file"] + ", Task ID: " + error["task_id"]);
 		    } else {
 			dataArray[errorIndex].push(null);
@@ -170,7 +164,7 @@
 		    if(chartType === 'Error'){
 			options.title = "Storm Exception Visualization";
 			options.hAxis.title = "Index";
-			options.vAxis.title = "Type";
+			options.vAxis.title = "Task ID";
 		    }
 		    return options;
 		}
